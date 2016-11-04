@@ -3,34 +3,43 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_camera"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Import" />
+            android:id="@+id/all"
+            android:checked="true"
+            android:icon="@drawable/main_nav_ic_all"
+            android:title="全部" />
         <item
-            android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery" />
+            android:id="@+id/good"
+            android:icon="@drawable/main_nav_ic_good"
+            android:title="精华" />
         <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Slideshow" />
+            android:id="@+id/share"
+            android:icon="@drawable/main_nav_ic_share"
+            android:title="分享" />
         <item
-            android:id="@+id/nav_manage"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Tools" />
+            android:id="@+id/ask"
+            android:icon="@drawable/main_nav_ic_ask"
+            android:title="问答" />
+        <item
+            android:id="@+id/job"
+            android:icon="@drawable/main_nav_ic_job"
+            android:title="招聘" />
     </group>
 
-    <item android:title="Communicate">
-        <menu>
-            <item
-                android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
-            <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Send" />
-        </menu>
-    </item>
+
+    <group  android:id="@+id/group2">
+        <item
+            android:id="@+id/msg"
+            android:icon="@mipmap/ic_notifications_grey600_24dp"
+            android:title="消息" />
+        <item
+            android:id="@+id/setting"
+            android:icon="@mipmap/ic_settings_grey600_24dp"
+            android:title="设置" />
+        <item
+            android:id="@+id/about"
+            android:icon="@mipmap/ic_info_grey600_24dp"
+            android:title="关于" />
+    </group>
+
 
 </menu>
