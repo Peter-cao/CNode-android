@@ -4,7 +4,7 @@
     android:id="@+id/activity_topic_detail"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.demo.cnode_android.TopicDetailActivity">
+    tools:context="com.demo.cnode_android.activity.TopicDetailActivity">
     <WebView
         android:id="@+id/detail_webview"
         android:layout_width="match_parent"

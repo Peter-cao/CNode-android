@@ -1,11 +1,12 @@
-package com.demo.cnode_android;
+package com.demo.cnode_android.activity;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
+
+import com.demo.cnode_android.R;
+import com.demo.cnode_android.model.api.ApiService;
 
 import retrofit2.Call;
 import retrofit2.Callback;

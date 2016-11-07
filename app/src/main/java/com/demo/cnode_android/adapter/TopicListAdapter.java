@@ -1,9 +1,8 @@
-package com.demo.cnode_android;
+package com.demo.cnode_android.adapter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.v4.util.LruCache;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,11 +11,13 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.demo.cnode_android.R;
+import com.demo.cnode_android.Utils;
+import com.demo.cnode_android.model.entity.Topic;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import static com.demo.cnode_android.R.id.imageView;
 
 /**
  * Created by ck on 2016/10/21.
@@ -51,9 +52,9 @@ public class TopicListAdapter extends BaseAdapter {
         TextView reply_count;
     }
 
-    public TopicListAdapter(Context context, List<Topic> list) {
+    public TopicListAdapter(Context context) {
         this.context = context;
-        this.dataList = list;
+        this.dataList = new ArrayList<Topic>();
         mInflater = LayoutInflater.from(context);
 
         int maxMemory = (int) Runtime.getRuntime().maxMemory();
@@ -72,7 +73,7 @@ public class TopicListAdapter extends BaseAdapter {
     }
 
     @Override
-    public Object getItem(int position) {
+    public Topic getItem(int position) {
         return dataList.get(position);
     }
 
@@ -81,7 +82,6 @@ public class TopicListAdapter extends BaseAdapter {
         return position;
     }
 
-    ;
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {

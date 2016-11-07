@@ -1,11 +1,11 @@
-package com.demo.cnode_android;
+package com.demo.cnode_android.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.view.menu.ExpandedMenuView;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -20,25 +20,24 @@ import android.view.MenuItem;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
-import java.util.ArrayList;
+import com.demo.cnode_android.contract.MainContract;
+import com.demo.cnode_android.R;
+import com.demo.cnode_android.model.entity.Topic;
+import com.demo.cnode_android.adapter.TopicListAdapter;
+import com.demo.cnode_android.presenter.MainPresenter;
+
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, MainContract.View {
     private ListView  topicsList;
     private TopicListAdapter topicsAdapter;
-    private List<Topic>  dataList = new ArrayList<>();
-    private int page = 1;
-    private int pageSize = 20;
-    private String tab = "";
     private SwipeRefreshLayout content_main;
+    private MainPresenter mMainPresenter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,24 +65,21 @@ public class MainActivity extends AppCompatActivity
 
 
         content_main = (SwipeRefreshLayout)findViewById(R.id.content_main);
-        content_main.setProgressViewOffset(true,0,(int) TypedValue
-                .applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources()
-                        .getDisplayMetrics()));
+        topicsList = (ListView) findViewById(R.id.topicsList);
+
         content_main.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                page = 1;
-                getList(true);
+                mMainPresenter.refreshMoreList();
             }
         });
-        topicsList = (ListView) findViewById(R.id.topicsList);
+
         topicsList.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
                if(scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE){
                     if(view.getLastVisiblePosition() == view.getCount()-1){
-                        page++;
-                        getList(false);
+                        mMainPresenter.loadMoreList();
                     }
                }
 
@@ -97,49 +93,54 @@ public class MainActivity extends AppCompatActivity
         topicsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String  topicId = dataList.get(position).getId();
+                String  topicId = topicsAdapter.getItem(position).getId();
                 Intent intent = new Intent(MainActivity.this,TopicDetailActivity.class);
                 intent.putExtra("topicId",topicId);
                 startActivity(intent);
             }
         });
-        topicsAdapter = new TopicListAdapter(this,dataList);
+        topicsAdapter = new TopicListAdapter(this);
         topicsList.setAdapter(topicsAdapter);
-        getList(true);
+        mMainPresenter = new MainPresenter(this);
+
+        showLoading();
+        mMainPresenter.refreshMoreList();
     }
-    public void  getList(final boolean isRefresh){
-        content_main.setRefreshing(true);
-        Retrofit retrofit = new Retrofit.Builder()
-                .addConverterFactory(GsonConverterFactory.create())
-                .baseUrl("https://cnodejs.org/api/v1/")
-                .build();
-        ApiService service = retrofit.create(ApiService.class);
-        Call<TopicResponse> call =  service.getTopics(page,pageSize,tab);
-        call.enqueue(new Callback<TopicResponse>() {
-            @Override
-            public void onResponse(Call<TopicResponse> call, Response<TopicResponse> response) {
-                TopicResponse topicResponse = response.body();
-                if(topicResponse.getSuccess()){
-                    if(isRefresh){
-                        dataList =topicResponse.getData();
-                        topicsAdapter.setDataList(topicResponse.getData());
-                    }else{
-                        dataList.addAll(topicResponse.getData());
-                        topicsAdapter.addDataList(topicResponse.getData());
-                    }
 
-                    topicsAdapter.notifyDataSetChanged();
-                    content_main.setRefreshing(false);
-                }
-            }
-
+    @Override
+    public void showLoading() {
+        Handler handler = new Handler();
+        handler.post(new Runnable() {
             @Override
-            public void onFailure(Call<TopicResponse> call, Throwable t) {
-                Log.e("aaaa>>>>",t.getMessage());
+            public void run() {
+                content_main.setRefreshing(true);
             }
         });
     }
 
+    @Override
+    public void hideLoading() {
+        content_main.setRefreshing(false);
+    }
+
+    @Override
+    public void loadMoreList(List<Topic> list) {
+        topicsAdapter.addDataList(list);
+        topicsAdapter.notifyDataSetChanged();
+        hideLoading();
+    }
+
+    @Override
+    public void refreshMoreList(List<Topic> list) {
+        topicsAdapter.setDataList(list);
+        topicsAdapter.notifyDataSetChanged();
+        hideLoading();
+    }
+
+    @Override
+    public void showError(String msg) {
+        Toast.makeText(this,msg,Toast.LENGTH_LONG).show();
+    }
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -150,28 +151,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -179,25 +158,15 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.all) {
-            page = 1;
-            tab = "";
-            getList(true);
+            mMainPresenter.changeTab("");
         } else if (id == R.id.ask) {
-            page = 1;
-            tab = "ask";
-            getList(true);
+            mMainPresenter.changeTab("ask");
         } else if (id == R.id.share) {
-            page = 1;
-            tab = "share";
-            getList(true);
+            mMainPresenter.changeTab("share");
         } else if (id == R.id.job) {
-            page = 1;
-            tab = "job";
-            getList(true);
+            mMainPresenter.changeTab("job");
         } else if (id == R.id.good) {
-            page = 1;
-            tab = "good";
-            getList(true);
+            mMainPresenter.changeTab("good");
         } else if (id == R.id.msg) {
 
         } else if (id == R.id.setting) {

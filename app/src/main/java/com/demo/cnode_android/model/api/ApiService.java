@@ -1,7 +1,7 @@
-package com.demo.cnode_android;
+package com.demo.cnode_android.model.api;
 
-import java.util.List;
-import java.util.Objects;
+import com.demo.cnode_android.model.entity.Topic;
+import com.demo.cnode_android.model.entity.TopicResponse;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

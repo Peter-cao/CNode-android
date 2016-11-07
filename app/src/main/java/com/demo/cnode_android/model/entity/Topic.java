@@ -1,4 +1,6 @@
-package com.demo.cnode_android;
+package com.demo.cnode_android.model.entity;
+
+import com.demo.cnode_android.model.entity.Author;
 
 /**
  * Created by ck on 2016/10/20.
